@@ -57,6 +57,7 @@ interface Settings {
 	upscale: boolean;
 }
 
+let settings: Settings;
 let exporting = false;
 
 async function exportPng() {
@@ -76,7 +77,7 @@ async function exportPng() {
 
 		if (path) {
 			previewMessageContentEl.style.backgroundColor = previewBackgroundEl!.style.backgroundColor;
-			const result = await snapdom.toBlob(previewMessageContentEl, { type: "png", embedFonts: true, scale: 10 });
+			const result = await snapdom.toBlob(previewMessageContentEl, { type: "png", embedFonts: true, scale: settings.upscale ? 10 : 1 });
 			previewMessageContentEl.style.backgroundColor = "initial";
 
 			const bytes = new Uint8Array(await result.arrayBuffer());
@@ -94,7 +95,7 @@ function centerPreview() {
 }
 
 // todo: dont handle defaults. settings will have a default at some point.
-function renderPreview(settings: Settings) {
+function renderPreview() {
 	console.debug(settings);
 
 	previewBackgroundEl!.style.backgroundColor = settings?.background.color || "#FFFFFF00";
@@ -162,7 +163,7 @@ window.addEventListener("DOMContentLoaded", () => {
 			.toString(16)
 			.padStart(2, "0");
 
-		const settings: Settings = {
+		settings = {
 			badges: ["moderator"],
 			username: {
 				color: usernameColorEl?.value ?? "#FFFFFF",
@@ -184,12 +185,12 @@ window.addEventListener("DOMContentLoaded", () => {
 			upscale: upscaleCheckboxEl?.checked || false
 		};
 
-		renderPreview(settings);
-		updateThingies(settings);
+		renderPreview();
+		updateThingies();
 	}
 
 	// todo: dont handle defaults. settings will have a default at some point.
-	function updateThingies(settings: Settings) {
+	function updateThingies() {
 		outlineThicknessValueEl!.innerText = settings?.outline.thickness.toString() || "0";
 
 		backgroundOpacityValueEl!.innerText = settings?.background.opacity.toFixed(2) || "0.00";
