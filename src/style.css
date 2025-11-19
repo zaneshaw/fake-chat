@@ -115,6 +115,8 @@ input[type="range"] {
 
 		overflow: hidden;
 
+		paint-order: stroke fill;
+
 		#preview-message {
 			position: absolute;
 

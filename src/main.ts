@@ -80,10 +80,14 @@ async function exportPng() {
 
 			await writeFile(path, bytes);
 		}
-
 	}
 
 	exporting = false;
+}
+
+function centerPreview() {
+	previewMessageEl!.style.left = `${previewMessageContainerEl!.clientWidth / 2 - previewMessageEl!.clientWidth / 2}px`;
+	previewMessageEl!.style.top = `${previewMessageContainerEl!.clientHeight / 2 - previewMessageEl!.clientHeight / 2}px`;
 }
 
 // todo: dont handle defaults. settings will have a default at some point.
@@ -100,6 +104,8 @@ function renderPreview(settings: Settings) {
 
 	previewMessageContentEl!.style.width = settings?.wrapping ? "291px" : "auto";
 	previewMessageContentEl!.style.color = settings.username.color;
+	previewMessageContentEl!.style.webkitTextStrokeColor = settings.outline.color;
+	previewMessageContentEl!.style.webkitTextStrokeWidth = `${settings.outline.thickness}px`;
 
 	previewMessageAuthorEl!.style.color = settings.username.color;
 	previewMessageAuthorEl!.innerText = settings.username.text;
@@ -107,8 +113,7 @@ function renderPreview(settings: Settings) {
 	previewMessageBodyEl!.style.color = settings.message.color;
 	previewMessageBodyEl!.innerText = settings.message.text;
 
-	previewMessageEl!.style.left = `${previewMessageContainerEl!.clientWidth / 2 - previewMessageEl!.clientWidth / 2}px`;
-	previewMessageEl!.style.top = `${previewMessageContainerEl!.clientHeight / 2 - previewMessageEl!.clientHeight / 2}px`;
+	centerPreview();
 }
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -186,8 +191,5 @@ window.addEventListener("DOMContentLoaded", () => {
 
 	updateAll();
 
-	setInterval(() => {
-		previewMessageEl!.style.left = `${previewMessageContainerEl!.clientWidth / 2 - previewMessageEl!.clientWidth / 2}px`;
-		previewMessageEl!.style.top = `${previewMessageContainerEl!.clientHeight / 2 - previewMessageEl!.clientHeight / 2}px`;
-	}, 100);
+	setInterval(centerPreview, 100);
 });
