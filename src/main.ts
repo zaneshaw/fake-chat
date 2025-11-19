@@ -2573,7 +2573,7 @@ function renderPreview() {
 		previewBackgroundContainerEl!.style.display = "none";
 	}
 
-	previewMessageContentEl!.style.width = settings?.wrap ? "291px" : "auto";
+	previewMessageContentEl!.style.maxWidth = settings?.wrap ? "291px" : "auto";
 	previewMessageContentEl!.style.color = settings.username.color;
 	previewMessageContentEl!.style.webkitTextStrokeColor = settings.outline.color;
 	previewMessageContentEl!.style.webkitTextStrokeWidth = `${settings.outline.thickness}px`;
