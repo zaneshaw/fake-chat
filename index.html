@@ -10,11 +10,11 @@
 
 	<body>
 		<main class="container">
-			<div id="settings-container">
+			<div>
 				<h2>settings</h2>
-				<div class="row">
+				<div id="settings">
 					<div class="input-wrapper">
-						<div class="flex-row" style="display: flex; gap: 10px;">
+						<div class="flex-row" style="display: flex; gap: 10px">
 							<div class="input-wrapper">
 								<span>badges</span>
 								<div class="flex-row">
@@ -24,11 +24,11 @@
 									<div class="badge-selector"></div>
 								</div>
 							</div>
-							<div class="input-wrapper" style="flex-grow: 1;">
+							<div class="input-wrapper" style="flex-grow: 1">
 								<span>username</span>
 								<div class="flex-row">
-									<input id="outline-input" type="color" value="#FF0000" />
-									<input id="username-input" type="text" placeholder="coolguy" />
+									<input id="username-color" type="color" value="#FFFFFF" />
+									<input id="username-text" type="text" placeholder="coolguy" />
 								</div>
 							</div>
 						</div>
@@ -36,34 +36,55 @@
 					<div class="input-wrapper">
 						<span>message</span>
 						<div class="flex-row">
-							<input id="outline-input" type="color" />
-							<input id="message-input" type="text" placeholder="aga yo" />
+							<input id="message-color" type="color" value="#FFFFFF" />
+							<input id="message-text" type="text" placeholder="aga yo" />
 						</div>
 					</div>
 					<div class="input-wrapper">
 						<span>outline</span>
 						<div class="flex-row">
-							<input id="outline-input" type="color" value="#FFFFFF" />
-							<input id="message-input" type="range" min="0" max="5" step="1" value="0" />
-							<span style="font-size: small;">thickness: <span id="outline-thickness">0</span></span>
+							<input id="outline-color" type="color" value="#000000" />
+							<input id="outline-slider" type="range" min="0" max="5" step="1" value="0" />
+							<span style="font-size: small">thickness: <span id="outline-thickness">0</span></span>
 						</div>
 					</div>
 					<div class="input-wrapper">
 						<span>background</span>
 						<div class="flex-row">
 							<div id="transparent-colour-picker">
-								<input id="outline-input" type="color" value="#FFFFFF" />
 								<div class="transparent-image"></div>
+								<input id="background-color" type="color" value="#FFFFFF" />
 							</div>
-							<input id="message-input" type="range" min="0" max="1" step="0.05" value="1" />
-							<span style="font-size: small;">opacity: <span id="background-opacity">1.0</span></span>
+							<input id="background-slider" type="range" min="0" max="1" step="0.05" value="0" />
+							<span style="font-size: small">opacity: <span id="background-opacity">0.0</span></span>
+						</div>
+					</div>
+					<div class="flex-row">
+						<div>
+							<label>
+								wrap text
+								<input type="checkbox" id="wrapping-checkbox" />
+							</label>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div id="preview-container">
-				<h2>preview</h2>
-				<div class="transparent-image" id="preview"></div>
+			<div>
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px">
+					<h2 style="margin-bottom: 0px">preview</h2>
+					<div class="flex-row">
+						<label style="font-size: small; display: flex; align-items: center">
+							preview background
+							<input type="checkbox" id="preview-background-checkbox" checked />
+						</label>
+					</div>
+				</div>
+				<div id="preview">
+					<div id="preview-background-container">
+						<div class="transparent-image"></div>
+						<div id="preview-background"></div>
+					</div>
+				</div>
 			</div>
 		</main>
 		<button id="export-button">export</button>

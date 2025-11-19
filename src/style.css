@@ -13,6 +13,10 @@
 	background-color: #f6f6f6;
 }
 
+body {
+	margin: 10px;
+}
+
 .container {
 	display: flex;
 	gap: 50px;
@@ -27,7 +31,8 @@
 
 h1,
 h2 {
-	margin: 5px 0px;
+	margin: 0px;
+	margin-bottom: 5px;
 }
 
 h1 {
@@ -48,13 +53,16 @@ h2 {
 	width: 100%;
 }
 
+input[type="text"] {
+	height: 16px;
+}
+
 input[type="color"] {
 	-webkit-appearance: none;
 	appearance: none;
 	border: 1px solid black;
-	min-width: 21px;
-	min-height: 21px;
-	height: 21px;
+	min-width: 22px;
+	height: 22px;
 	padding: 1px;
 }
 
@@ -72,8 +80,26 @@ input {
 }
 
 #preview {
+	position: relative;
+	background-color: #18181b;
 	outline: 1px solid black;
 	flex-grow: 1;
+
+	#preview-background-container {
+		position: relative;
+		top: 0px;
+		left: 0px;
+		width: 100%;
+		height: 100%;
+
+		> * {
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			width: 100%;
+			height: 100%;
+		}
+	}
 }
 
 #export-button {
@@ -85,11 +111,12 @@ input {
 .flex-row {
 	display: flex;
 	gap: 3px;
+	align-items: center;
 }
 
 .badge-selector {
-	height: 21px;
-	width: 21px;
+	height: 22px;
+	width: 22px;
 	background-color: #dbdbdb;
 }
 
@@ -97,11 +124,15 @@ input[type="range"] {
 	max-width: 50%;
 }
 
+/* scuffed */
 #transparent-colour-picker {
 	position: relative;
 	display: flex;
-	min-width: 21px;
-	min-height: 21px;
+	width: 22px;
+	height: 22px;
+
+	box-sizing: border-box;
+	border: 1px solid black;
 
 	> * {
 		position: absolute;
@@ -110,9 +141,25 @@ input[type="range"] {
 		width: 100%;
 		height: 100%;
 	}
+
+	> input {
+		padding: 0px;
+		border: 0px;
+		width: 20px;
+		min-width: 20px;
+		height: 20px;
+	}
 }
 
 .transparent-image {
 	background-image: url("/src/assets/transparent.png");
 	background-position: center;
+	background-size: 22px;
+	image-rendering: pixelated;
+}
+
+#settings {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
 }

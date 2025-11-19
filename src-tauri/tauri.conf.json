@@ -15,8 +15,9 @@
 			{
 				"title": "fake chat",
 				"width": 800,
-				"height": 300,
-				"maximizable": false
+				"height": 325,
+				"maximizable": false,
+				"resizable": false
 			}
 		],
 		"security": {
