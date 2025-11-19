@@ -222,7 +222,7 @@ function renderPreview() {
 	}
 
 	previewMessageContentEl.style.maxWidth = settings.wrap ? "291px" : "auto";
-	previewMessageContentEl.style.color = settings.username.color;
+	previewMessageContentEl.style.color = settings.message.color;
 	previewMessageContentEl.style.webkitTextStrokeColor = settings.outline.color;
 	previewMessageContentEl.style.webkitTextStrokeWidth = `${settings.outline.thickness}px`;
 
