@@ -67,10 +67,11 @@ interface Settings {
 	};
 	wrap: boolean;
 	upscale: boolean;
+	font: string;
 }
 
 const defaultSettings: Settings = {
-	version: 1,
+	version: 2,
 	badges: ["https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/3", "https://static-cdn.jtvnw.net/badges/v1/3158e758-3cb4-43c5-94b3-7639810451c5/3", "", ""],
 	username: {
 		color: "#FFFFFF",
@@ -90,6 +91,7 @@ const defaultSettings: Settings = {
 	},
 	wrap: false,
 	upscale: true,
+	font: "Inter",
 };
 
 let settings: Settings;
@@ -238,6 +240,8 @@ function renderPreview() {
 	previewMessageBodyEl.style.color = settings.message.color;
 	previewMessageBodyEl.innerText = settings.message.text;
 
+	previewMessageEl.style.fontFamily = settings.font;
+
 	centerPreview();
 }
 
@@ -264,6 +268,8 @@ function updateElementsFromSettings() {
 
 	wrappingCheckboxEl.checked = settings.wrap;
 	upscaleCheckboxEl.checked = settings.upscale;
+
+	(document.querySelector(`input[name='font'][value='${settings.font}']`) as HTMLInputElement).checked = true;
 
 	renderPreview();
 }
@@ -292,7 +298,18 @@ function updateSettingsFromElements() {
 	settings.wrap = wrappingCheckboxEl.checked;
 	settings.upscale = upscaleCheckboxEl.checked;
 
+	settings.font = (document.querySelector("input[name='font']:checked") as HTMLInputElement).value;
+
 	renderPreview();
+	saveSettings();
+}
+
+function upgradeSettings() {
+	if (settings.version < 2) {
+		settings.font = defaultSettings.font;
+		settings.version = 2;
+	}
+
 	saveSettings();
 }
 
@@ -306,6 +323,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 		settings = defaultSettings;
 		saveSettings();
 	}
+
+	upgradeSettings();
 
 	updateElementsFromSettings();
 

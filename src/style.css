@@ -7,6 +7,11 @@
 	src: url("/src/assets/inter.woff2");
 }
 
+@font-face {
+	font-family: MADE;
+	src: url("/src/assets/made extrabold.otf");
+}
+
 :root {
 	@apply bg-neutral-100 text-neutral-900;
 

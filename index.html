@@ -59,10 +59,23 @@
 							<span class="text-xs">opacity: <span id="background-opacity">0.0</span></span>
 						</div>
 					</div>
-					<label class="flex items-center gap-1">
-						wrap text
-						<input type="checkbox" id="wrapping-checkbox" />
-					</label>
+					<div class="flex justify-between">
+						<label class="flex items-center gap-1">
+							<span>wrap text</span>
+							<input type="checkbox" id="wrapping-checkbox" />
+						</label>
+						<div class="flex items-center gap-1">
+							<span>font</span>
+							<label class="flex items-center text-xs">
+								<input type="radio" name="font" value="Inter" />
+								<span class="mt-1">Inter (Twitch)</span>
+							</label>
+							<label class="flex items-center text-xs">
+								<input type="radio" name="font" value="MADE" />
+								<span class="mt-1">MADE</span>
+							</label>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="flex grow basis-0 flex-col">
