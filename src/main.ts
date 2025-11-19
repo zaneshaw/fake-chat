@@ -3,44 +3,45 @@ import { downloadDir } from "@tauri-apps/api/path";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 
-let settingsEl: HTMLElement | null;
+let settingsEl: HTMLElement;
 
 let badgeSelectorEls: HTMLImageElement[];
-let badgeSelectorModalEl: HTMLElement | null;
-let removeBadgeButtonEl: HTMLElement | null;
+let badgeSelectorModalEl: HTMLElement;
+let removeBadgeButtonEl: HTMLElement;
 
-let usernameColorEl: HTMLInputElement | null;
-let usernameTextEl: HTMLInputElement | null;
+let usernameColorEl: HTMLInputElement;
+let usernameTextEl: HTMLInputElement;
 
-let messageColorEl: HTMLInputElement | null;
-let messageTextEl: HTMLInputElement | null;
+let messageColorEl: HTMLInputElement;
+let messageTextEl: HTMLInputElement;
 
-let outlineColorEl: HTMLInputElement | null;
-let outlineSliderEl: HTMLInputElement | null;
-let outlineThicknessValueEl: HTMLElement | null;
+let outlineColorEl: HTMLInputElement;
+let outlineSliderEl: HTMLInputElement;
+let outlineThicknessValueEl: HTMLElement;
 
-let backgroundColorEl: HTMLInputElement | null;
-let backgroundSliderEl: HTMLInputElement | null;
-let backgroundOpacityValueEl: HTMLElement | null;
+let backgroundColorEl: HTMLInputElement;
+let backgroundSliderEl: HTMLInputElement;
+let backgroundOpacityValueEl: HTMLElement;
 
-let wrappingCheckboxEl: HTMLInputElement | null;
+let wrappingCheckboxEl: HTMLInputElement;
 
-let previewBackgroundCheckboxEl: HTMLInputElement | null;
+let previewBackgroundCheckboxEl: HTMLInputElement;
 
-let upscaleCheckboxEl: HTMLInputElement | null;
+let upscaleCheckboxEl: HTMLInputElement;
 
-let previewBackgroundContainerEl: HTMLElement | null;
-let previewBackgroundEl: HTMLElement | null;
-let previewMessageContainerEl: HTMLElement | null;
-let previewMessageEl: HTMLElement | null;
-let previewMessageContentEl: HTMLElement | null;
-let previewMessageBadgesEl: HTMLElement | null;
-let previewMessageAuthorEl: HTMLElement | null;
-let previewMessageBodyEl: HTMLElement | null;
+let previewBackgroundContainerEl: HTMLElement;
+let previewBackgroundEl: HTMLElement;
+let previewMessageContainerEl: HTMLElement;
+let previewMessageEl: HTMLElement;
+let previewMessageContentEl: HTMLElement;
+let previewMessageBadgesEl: HTMLElement;
+let previewMessageAuthorEl: HTMLElement;
+let previewMessageBodyEl: HTMLElement;
 
-let exportButtonEl: HTMLButtonElement | null;
+let exportButtonEl: HTMLButtonElement;
 
 interface Settings {
+	version: number;
 	badges: string[];
 	username: {
 		color: string;
@@ -61,6 +62,29 @@ interface Settings {
 	wrap: boolean;
 	upscale: boolean;
 }
+
+const defaultSettings: Settings = {
+	version: 1,
+	badges: ["https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/3", "https://static-cdn.jtvnw.net/badges/v1/3158e758-3cb4-43c5-94b3-7639810451c5/3", "", ""],
+	username: {
+		color: "#FFFFFF",
+		text: "coolguy",
+	},
+	message: {
+		color: "#FFFFFF",
+		text: "aga yo",
+	},
+	outline: {
+		color: "#000000",
+		thickness: 0,
+	},
+	background: {
+		color: "#FFFFFF",
+		opacity: 0,
+	},
+	wrap: false,
+	upscale: true,
+};
 
 let settings: Settings;
 let exporting = false;
@@ -83,7 +107,7 @@ async function exportPng() {
 		});
 
 		if (path) {
-			previewMessageEl.style.backgroundColor = previewBackgroundEl!.style.backgroundColor;
+			previewMessageEl.style.backgroundColor = previewBackgroundEl.style.backgroundColor;
 			const result = await snapdom.toBlob(previewMessageEl, { type: "png", embedFonts: true, scale: settings.upscale ? 10 : 1 });
 			previewMessageEl.style.backgroundColor = "initial";
 
@@ -2516,178 +2540,164 @@ async function fetchGlobalBadges() {
 
 	console.debug(json.badges);
 
-	const globalBadgesEl = document.querySelector("#global-badges");
+	const globalBadgesEl = document.querySelector("#global-badges") as HTMLElement;
 	let badgesHtml = "";
 	for (const badge of json.badges) {
 		badgesHtml += `<img src="${badge.imageURL.substring(0, badge.imageURL.length - 1) + "2"}" />\n`;
 	}
-	globalBadgesEl!.innerHTML = badgesHtml;
+	globalBadgesEl.innerHTML = badgesHtml;
 }
 
 function openBadgeModal(selectorIndex: number) {
-	badgeSelectorModalEl!.dataset.selectorIndex = selectorIndex.toString();
-	badgeSelectorModalEl!.style.removeProperty("display");
+	badgeSelectorModalEl.dataset.selectorIndex = selectorIndex.toString();
+	badgeSelectorModalEl.style.removeProperty("display");
 }
 
 function closeBadgeModal(badgeSrc: string | false | undefined = undefined) {
-	const selectorIndex = parseInt(badgeSelectorModalEl!.dataset.selectorIndex || "-1");
+	const selectorIndex = parseInt(badgeSelectorModalEl.dataset.selectorIndex || "-1");
 	console.debug(`badge selector ${selectorIndex}`);
 
-	// todo: so scuffed. redo how settings work completely.
-	if (!settings.badges) settings.badges = ["", "", "", ""];
-
 	if (badgeSrc === false) {
-		badgeSelectorEls[selectorIndex].removeAttribute("data");
-
 		settings.badges[selectorIndex] = "";
 	} else if (badgeSrc) {
 		if (badgeSrc.endsWith("/2")) badgeSrc = badgeSrc.substring(0, badgeSrc.length - 1) + "3";
-		badgeSelectorEls[selectorIndex].setAttribute("data", badgeSrc);
 
 		console.debug(`badge src ${badgeSrc}`);
 
 		settings.badges[selectorIndex] = badgeSrc;
 	}
+	saveSettings();
 
-	delete badgeSelectorModalEl!.dataset.index;
-	badgeSelectorModalEl!.style.display = "none";
+	delete badgeSelectorModalEl.dataset.index;
+	badgeSelectorModalEl.style.display = "none";
 
 	console.log(settings.badges);
-	renderPreview();
+	updateElementsFromSettings();
 }
 
 function centerPreview() {
-	previewMessageEl!.style.left = `${previewMessageContainerEl!.clientWidth / 2 - previewMessageEl!.clientWidth / 2}px`;
-	previewMessageEl!.style.top = `${previewMessageContainerEl!.clientHeight / 2 - previewMessageEl!.clientHeight / 2}px`;
+	previewMessageEl.style.left = `${previewMessageContainerEl.clientWidth / 2 - previewMessageEl.clientWidth / 2}px`;
+	previewMessageEl.style.top = `${previewMessageContainerEl.clientHeight / 2 - previewMessageEl.clientHeight / 2}px`;
 }
 
-// todo: dont handle defaults. settings will have a default at some point.
 function renderPreview() {
 	console.debug(settings);
 
-	previewBackgroundEl!.style.backgroundColor = settings?.background.color || "#FFFFFF00";
+	outlineThicknessValueEl.innerText = settings.outline.thickness.toString();
 
-	if (previewBackgroundCheckboxEl?.checked) {
-		previewBackgroundContainerEl!.style.display = "block";
+	backgroundOpacityValueEl.innerText = settings.background.opacity.toFixed(2);
+	backgroundColorEl.style.opacity = settings.background.opacity.toString();
+
+	previewBackgroundEl.style.backgroundColor = `${settings.background.color}${floatToHex(settings.background.opacity)}`;
+
+	if (previewBackgroundCheckboxEl.checked) {
+		previewBackgroundContainerEl.style.display = "block";
 	} else {
-		previewBackgroundContainerEl!.style.display = "none";
+		previewBackgroundContainerEl.style.display = "none";
 	}
 
-	previewMessageContentEl!.style.maxWidth = settings?.wrap ? "291px" : "auto";
-	previewMessageContentEl!.style.color = settings.username.color;
-	previewMessageContentEl!.style.webkitTextStrokeColor = settings.outline.color;
-	previewMessageContentEl!.style.webkitTextStrokeWidth = `${settings.outline.thickness}px`;
+	previewMessageContentEl.style.maxWidth = settings.wrap ? "291px" : "auto";
+	previewMessageContentEl.style.color = settings.username.color;
+	previewMessageContentEl.style.webkitTextStrokeColor = settings.outline.color;
+	previewMessageContentEl.style.webkitTextStrokeWidth = `${settings.outline.thickness}px`;
 
 	if (settings.badges) {
-		previewMessageBadgesEl!.innerHTML = settings.badges
+		previewMessageBadgesEl.innerHTML = settings.badges
 			.map((src) => {
 				if (src) return `<img src="${src}" />`;
 			})
 			.join("\n");
 	}
 
-	previewMessageAuthorEl!.style.color = settings.username.color;
-	previewMessageAuthorEl!.innerText = settings.username.text;
+	previewMessageAuthorEl.style.color = settings.username.color;
+	previewMessageAuthorEl.innerText = settings.username.text;
 
-	previewMessageBodyEl!.style.color = settings.message.color;
-	previewMessageBodyEl!.innerText = settings.message.text;
+	previewMessageBodyEl.style.color = settings.message.color;
+	previewMessageBodyEl.innerText = settings.message.text;
 
 	centerPreview();
 }
 
+function saveSettings() {
+	window.localStorage.setItem("settings", JSON.stringify(settings));
+}
+
+function updateElementsFromSettings() {
+	for (let i = 0; i < badgeSelectorEls.length; i++) {
+		badgeSelectorEls[i].setAttribute("data", settings.badges[i]);
+	}
+
+	usernameColorEl.value = settings.username.color;
+	usernameTextEl.value = settings.username.text;
+
+	messageColorEl.value = settings.message.color;
+	messageTextEl.value = settings.message.text;
+
+	outlineColorEl.value = settings.outline.color;
+	outlineSliderEl.value = settings.outline.thickness.toString();
+
+	backgroundColorEl.value = settings.background.color;
+	backgroundSliderEl.value = settings.background.opacity.toString();
+
+	wrappingCheckboxEl.checked = settings.wrap;
+	upscaleCheckboxEl.checked = settings.upscale;
+
+	renderPreview();
+}
+
+function updateSettingsFromElements() {
+	settings.username = {
+		color: usernameColorEl.value,
+		text: usernameTextEl.value,
+	};
+
+	settings.message = {
+		color: messageColorEl.value,
+		text: messageTextEl.value,
+	};
+
+	settings.outline = {
+		color: outlineColorEl.value,
+		thickness: parseFloat(outlineSliderEl.value),
+	};
+
+	settings.background = {
+		color: backgroundColorEl.value,
+		opacity: parseFloat(backgroundSliderEl.value),
+	};
+
+	settings.wrap = wrappingCheckboxEl.checked;
+	settings.upscale = upscaleCheckboxEl.checked;
+
+	renderPreview();
+	saveSettings();
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
-	settingsEl = document.querySelector("#settings");
+	findAllElements();
 
-	badgeSelectorEls = Array.from(document.querySelectorAll(".badge-selector"));
-	badgeSelectorModalEl = document.querySelector("#badge-selector-modal");
-	removeBadgeButtonEl = document.querySelector("#remove-badge-button");
-
-	usernameColorEl = document.querySelector("#username-color");
-	usernameTextEl = document.querySelector("#username-text");
-
-	messageColorEl = document.querySelector("#message-color");
-	messageTextEl = document.querySelector("#message-text");
-
-	outlineColorEl = document.querySelector("#outline-color");
-	outlineSliderEl = document.querySelector("#outline-slider");
-	outlineThicknessValueEl = document.querySelector("#outline-thickness");
-
-	backgroundColorEl = document.querySelector("#background-color");
-	backgroundSliderEl = document.querySelector("#background-slider");
-	backgroundOpacityValueEl = document.querySelector("#background-opacity");
-
-	wrappingCheckboxEl = document.querySelector("#wrapping-checkbox");
-
-	previewBackgroundCheckboxEl = document.querySelector("#preview-background-checkbox");
-
-	upscaleCheckboxEl = document.querySelector("#upscale-checkbox");
-
-	previewBackgroundContainerEl = document.querySelector("#preview-background-container");
-	previewBackgroundEl = document.querySelector("#preview-background");
-	previewMessageContainerEl = document.querySelector("#preview-message-container");
-	previewMessageEl = document.querySelector("#preview-message");
-	previewMessageContentEl = document.querySelector("#preview-message-content");
-	previewMessageBadgesEl = document.querySelector("#preview-message-badges");
-	previewMessageAuthorEl = document.querySelector("#preview-message-author");
-	previewMessageBodyEl = document.querySelector("#preview-message-body");
-
-	exportButtonEl = document.querySelector("#export-button");
-
-	settingsEl?.addEventListener("input", updateAll);
-	previewBackgroundCheckboxEl?.addEventListener("input", updateAll);
-	upscaleCheckboxEl?.addEventListener("input", updateAll);
-	exportButtonEl?.addEventListener("click", exportPng);
-	removeBadgeButtonEl?.addEventListener("click", () => closeBadgeModal(false));
-
-	function updateAll() {
-		const backgroundOpacityHex = Math.floor(parseFloat(backgroundSliderEl?.value || "0") * 255)
-			.toString(16)
-			.padStart(2, "0");
-
-		settings = {
-			...settings,
-			...{
-				username: {
-					color: usernameColorEl?.value ?? "#FFFFFF",
-					text: usernameTextEl?.value || usernameTextEl!.placeholder,
-				},
-				message: {
-					color: messageColorEl?.value ?? "#FFFFFF",
-					text: messageTextEl?.value || messageTextEl!.placeholder,
-				},
-				outline: {
-					color: outlineColorEl?.value || "#000000",
-					thickness: parseFloat(outlineSliderEl?.value || "0"),
-				},
-				background: {
-					color: `${backgroundColorEl?.value}${backgroundOpacityHex}` || "#FFFFFF00",
-					opacity: parseFloat(backgroundSliderEl?.value || "0"),
-				},
-				wrap: wrappingCheckboxEl?.checked || false,
-				upscale: upscaleCheckboxEl?.checked || false,
-			},
-		};
-
-		renderPreview();
-		updateThingies();
+	const settingsStored = window.localStorage.getItem("settings");
+	if (settingsStored) {
+		settings = JSON.parse(settingsStored);
+	} else {
+		settings = defaultSettings;
+		saveSettings();
 	}
 
-	// todo: dont handle defaults. settings will have a default at some point.
-	function updateThingies() {
-		outlineThicknessValueEl!.innerText = settings?.outline.thickness.toString() || "0";
+	updateElementsFromSettings();
 
-		backgroundOpacityValueEl!.innerText = settings?.background.opacity.toFixed(2) || "0.00";
-		backgroundColorEl!.style.opacity = settings?.background.opacity.toString() ?? "0";
-	}
-
-	updateAll();
+	settingsEl.addEventListener("input", updateSettingsFromElements);
+	previewBackgroundCheckboxEl.addEventListener("input", updateSettingsFromElements);
+	upscaleCheckboxEl.addEventListener("input", updateSettingsFromElements);
+	exportButtonEl.addEventListener("click", exportPng);
+	removeBadgeButtonEl.addEventListener("click", () => closeBadgeModal(false));
 
 	setInterval(centerPreview, 100);
 
 	await fetchGlobalBadges();
 
 	badgeSelectorEls.forEach((badgeSelectorEl, i) => badgeSelectorEl.addEventListener("click", () => openBadgeModal(i)));
-	badgeSelectorModalEl?.addEventListener("click", (e) => {
+	badgeSelectorModalEl.addEventListener("click", (e) => {
 		const el = e.target as HTMLElement;
 		if (el) {
 			if (el == badgeSelectorModalEl) {
@@ -2698,3 +2708,48 @@ window.addEventListener("DOMContentLoaded", async () => {
 		}
 	});
 });
+
+function floatToHex(float: number) {
+	return Math.floor(float * 255)
+		.toString(16)
+		.padStart(2, "0");
+}
+
+function findAllElements() {
+	settingsEl = document.querySelector("#settings") as HTMLElement;
+
+	badgeSelectorEls = Array.from(document.querySelectorAll(".badge-selector"));
+	badgeSelectorModalEl = document.querySelector("#badge-selector-modal") as HTMLElement;
+	removeBadgeButtonEl = document.querySelector("#remove-badge-button") as HTMLElement;
+
+	usernameColorEl = document.querySelector("#username-color") as HTMLInputElement;
+	usernameTextEl = document.querySelector("#username-text") as HTMLInputElement;
+
+	messageColorEl = document.querySelector("#message-color") as HTMLInputElement;
+	messageTextEl = document.querySelector("#message-text") as HTMLInputElement;
+
+	outlineColorEl = document.querySelector("#outline-color") as HTMLInputElement;
+	outlineSliderEl = document.querySelector("#outline-slider") as HTMLInputElement;
+	outlineThicknessValueEl = document.querySelector("#outline-thickness") as HTMLElement;
+
+	backgroundColorEl = document.querySelector("#background-color") as HTMLInputElement;
+	backgroundSliderEl = document.querySelector("#background-slider") as HTMLInputElement;
+	backgroundOpacityValueEl = document.querySelector("#background-opacity") as HTMLElement;
+
+	wrappingCheckboxEl = document.querySelector("#wrapping-checkbox") as HTMLInputElement;
+
+	previewBackgroundCheckboxEl = document.querySelector("#preview-background-checkbox") as HTMLInputElement;
+
+	upscaleCheckboxEl = document.querySelector("#upscale-checkbox") as HTMLInputElement;
+
+	previewBackgroundContainerEl = document.querySelector("#preview-background-container") as HTMLElement;
+	previewBackgroundEl = document.querySelector("#preview-background") as HTMLElement;
+	previewMessageContainerEl = document.querySelector("#preview-message-container") as HTMLElement;
+	previewMessageEl = document.querySelector("#preview-message") as HTMLElement;
+	previewMessageContentEl = document.querySelector("#preview-message-content") as HTMLElement;
+	previewMessageBadgesEl = document.querySelector("#preview-message-badges") as HTMLElement;
+	previewMessageAuthorEl = document.querySelector("#preview-message-author") as HTMLElement;
+	previewMessageBodyEl = document.querySelector("#preview-message-body") as HTMLElement;
+
+	exportButtonEl = document.querySelector("#export-button") as HTMLButtonElement;
+}
