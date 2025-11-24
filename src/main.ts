@@ -7,6 +7,8 @@ let settingsEl: HTMLElement;
 
 let badgeSelectorEls: HTMLImageElement[];
 let badgeSelectorModalEl: HTMLElement;
+let badgeSelectorContainerEl: HTMLElement;
+let badgeTooltipEl: HTMLElement;
 let removeBadgeButtonEl: HTMLElement;
 
 let usernameColorEl: HTMLInputElement;
@@ -168,7 +170,7 @@ async function fetchGlobalBadges() {
 	const globalBadgesEl = document.querySelector("#global-badges") as HTMLElement;
 	let badgesHtml = "";
 	for (const badge of globalBadges.badges) {
-		badgesHtml += `<img src="${badge.imageURL.substring(0, badge.imageURL.length - 1) + "2"}" />\n`;
+		badgesHtml += `<img src="${badge.imageURL.substring(0, badge.imageURL.length - 1) + "2"}" data-tooltip="${badge.title}" />\n`;
 	}
 	globalBadgesEl.innerHTML = badgesHtml;
 }
@@ -194,9 +196,10 @@ function closeBadgeModal(badgeSrc: string | false | undefined = undefined) {
 	saveSettings();
 
 	delete badgeSelectorModalEl.dataset.index;
+	badgeSelectorContainerEl.scrollTo(0, 0);
 	badgeSelectorModalEl.style.display = "none";
 
-	console.log(settings.badges);
+	console.debug(settings.badges);
 	updateElementsFromSettings();
 }
 
@@ -313,6 +316,10 @@ function upgradeSettings() {
 	saveSettings();
 }
 
+function renderBadgeTooltip() {
+
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
 	findAllElements();
 
@@ -349,6 +356,24 @@ window.addEventListener("DOMContentLoaded", async () => {
 			}
 		}
 	});
+
+	document.addEventListener("mouseover", (e) => {
+		if (badgeSelectorModalEl.style.display != "none" && (e.target as HTMLElement).dataset.tooltip) {
+			const el = e.target as HTMLElement;
+
+			badgeTooltipEl.style.display = "block";
+			badgeTooltipEl.style.top = `${el.offsetTop - badgeSelectorContainerEl.scrollTop - el.clientHeight / 2 - 4}px`;
+			badgeTooltipEl.style.left = `${el.offsetLeft + el.clientWidth / 2}px`;
+
+			badgeTooltipEl.innerText = el.dataset.tooltip as string;
+		} else {
+			badgeTooltipEl.style.display = "none";
+		}
+	});
+
+	badgeSelectorContainerEl.addEventListener("scroll", () => {
+		badgeTooltipEl.style.display = "none";
+	})
 });
 
 function floatToHex(float: number) {
@@ -362,6 +387,8 @@ function findAllElements() {
 
 	badgeSelectorEls = Array.from(document.querySelectorAll(".badge-selector"));
 	badgeSelectorModalEl = document.querySelector("#badge-selector-modal") as HTMLElement;
+	badgeSelectorContainerEl = document.querySelector("#badge-selector-container") as HTMLElement;
+	badgeTooltipEl = document.querySelector("#badge-tooltip") as HTMLElement;
 	removeBadgeButtonEl = document.querySelector("#remove-badge-button") as HTMLElement;
 
 	usernameColorEl = document.querySelector("#username-color") as HTMLInputElement;
