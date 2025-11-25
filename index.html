@@ -14,23 +14,26 @@
 				<h2 class="mb-1">settings</h2>
 				<div class="flex flex-col gap-1" id="settings">
 					<div class="flex flex-col">
-						<div class="flex items-center gap-3">
-							<div class="flex flex-col">
-								<span>badges</span>
-								<div class="flex items-center gap-1">
-									<object class="badge-selector" data="" type="image/png"></object>
-									<object class="badge-selector" data="" type="image/png"></object>
-									<object class="badge-selector" data="" type="image/png"></object>
-									<object class="badge-selector" data="" type="image/png"></object>
+						<div class="flex items-center gap-1.5">
+							<div class="flex grow items-center gap-3">
+								<div class="flex flex-col">
+									<span>badges</span>
+									<div class="flex items-center gap-1">
+										<object class="badge-selector" data="" type="image/png"></object>
+										<object class="badge-selector" data="" type="image/png"></object>
+										<object class="badge-selector" data="" type="image/png"></object>
+										<object class="badge-selector" data="" type="image/png"></object>
+									</div>
+								</div>
+								<div class="flex grow flex-col">
+									<span>username</span>
+									<div class="flex items-center gap-1">
+										<input id="username-color" type="color" value="#FFFFFF" />
+										<input class="grow" id="username-text" type="text" placeholder="coolguy" autocomplete="off" />
+									</div>
 								</div>
 							</div>
-							<div class="flex grow flex-col">
-								<span>username</span>
-								<div class="flex items-center gap-1">
-									<input id="username-color" type="color" value="#FFFFFF" />
-									<input class="grow" id="username-text" type="text" placeholder="coolguy" autocomplete="off" />
-								</div>
-							</div>
+							<img class="mt-auto h-5 cursor-pointer rounded p-0.5 hover:bg-neutral-300" src="/src/assets/preset.svg" id="user-presets-button" />
 						</div>
 					</div>
 					<div class="flex flex-col">
@@ -112,17 +115,33 @@
 			<button class="cursor-pointer px-3 py-1.5 text-sm" id="export-button">export</button>
 		</div>
 		<a class="absolute bottom-1 left-3 text-xs text-neutral-400 no-underline" href="https://github.com/zaneshaw/fake-chat" target="_blank">made by squidee</a>
+		<div class="absolute top-0 left-0 flex size-full items-center justify-center bg-black/50" id="user-presets-modal" style="display: none">
+			<div class="flex size-full h-4/5 w-2/5 flex-col gap-2 overflow-y-auto rounded bg-neutral-100 p-5" id="user-presets-modal-container">
+				<div class="flex justify-between items-center">
+					<h2>presets</h2>
+					<span class="cursor-pointer underline text-xs" id="user-presets-new-button">new preset</span>
+				</div>
+				<div class="flex flex-col" id="user-presets-list">
+					<span data-userpreset="0">0</span>
+					<span data-userpreset="1">1</span>
+					<span data-userpreset="2">2</span>
+				</div>
+			</div>
+		</div>
 		<div class="absolute top-0 left-0 flex size-full items-center justify-center bg-black/50" id="badge-selector-modal" style="display: none">
 			<div
 				class="flex size-full h-4/5 w-2/5 flex-col gap-2 overflow-y-auto rounded bg-neutral-100 p-5 [&_img]:size-6 [&_img]:cursor-pointer [&_img]:rounded [&_img]:p-1 [&_img]:drop-shadow [&_img]:drop-shadow-black/15 [&_img]:hover:bg-neutral-300 [&_img]:hover:drop-shadow-none"
-				id="badge-selector-container"
+				id="badge-selector-modal-container"
 			>
 				<div class="pointer-events-none absolute top-0 left-0 z-10 hidden translate-[-50%] rounded bg-neutral-50 px-2 py-1 text-sm drop-shadow" id="badge-tooltip"></div>
-				<span class="cursor-pointer text-xs underline" id="remove-badge-button">remove badge</span>
+				<div class="flex justify-between items-center">
+					<h2>badges</h2>
+					<span class="cursor-pointer underline text-xs" id="remove-badge-button">remove badge</span>
+				</div>
 				<input class="m-0 box-border min-w-full rounded border-none px-2 py-1 outline outline-black" placeholder="search global badges" autocomplete="off" id="global-badges-search" />
 				<div class="flex flex-col gap-5" id="global-badges-container">
 					<div>
-						<h2>common global badges</h2>
+						<h3>common global badges</h3>
 						<div class="flex flex-wrap">
 							<img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2" data-badge="Moderator" />
 							<img src="https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/2" data-badge="Verified" />

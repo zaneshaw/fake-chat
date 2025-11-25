@@ -7,13 +7,18 @@ let settingsEl: HTMLElement;
 
 let badgeSelectorEls: HTMLImageElement[];
 let badgeSelectorModalEl: HTMLElement;
-let badgeSelectorContainerEl: HTMLElement;
+let badgeSelectorModalContainerEl: HTMLElement;
 let badgeTooltipEl: HTMLElement;
 let globalBadgesSearchEl: HTMLInputElement;
 let removeBadgeButtonEl: HTMLElement;
 
 let usernameColorEl: HTMLInputElement;
 let usernameTextEl: HTMLInputElement;
+
+let userPresetsButtonEl: HTMLElement;
+let userPresetsModalEl: HTMLElement;
+let userPresetsModalContainerEl: HTMLElement;
+let userPresetsAddButtonEl: HTMLElement;
 
 let messageColorEl: HTMLInputElement;
 let messageTextEl: HTMLInputElement;
@@ -43,6 +48,14 @@ let previewMessageBodyEl: HTMLElement;
 
 let exportButtonEl: HTMLButtonElement;
 
+interface UserPreset {
+	badges: string[];
+	username: {
+		color: string;
+		text: string;
+	};
+}
+
 interface GlobalBadges {
 	last_fetched: number;
 	fetch_cooldown: number;
@@ -71,10 +84,11 @@ interface Settings {
 	wrap: boolean;
 	upscale: boolean;
 	font: string;
+	userPresets: UserPreset[];
 }
 
 const defaultSettings: Settings = {
-	version: 2,
+	version: 3,
 	badges: ["https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/3", "https://static-cdn.jtvnw.net/badges/v1/3158e758-3cb4-43c5-94b3-7639810451c5/3", "", ""],
 	username: {
 		color: "#FFFFFF",
@@ -95,6 +109,20 @@ const defaultSettings: Settings = {
 	wrap: false,
 	upscale: true,
 	font: "Inter",
+	userPresets: [
+		{
+			badges: [
+				"https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/3",
+				"https://static-cdn.jtvnw.net/badges/v1/01998862-3032-4f9c-bc81-fd78b0c35763/3",
+				"https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/3",
+				"",
+			],
+			username: {
+				color: "#5e8b69",
+				text: "Liam",
+			},
+		},
+	],
 };
 
 let settings: Settings;
@@ -177,6 +205,52 @@ async function fetchGlobalBadges() {
 	for (const globalBadgesEl of globalBadgesEls) globalBadgesEl.innerHTML = badgesHtml;
 }
 
+function renderUserPresets() {
+	let html = "";
+
+	for (let i = 0; i < settings.userPresets.length; i++) {
+		const preset = settings.userPresets[i];
+
+		html += `<div class="flex group items-center gap-1 rounded hover:bg-neutral-300 py-1 px-2 cursor-pointer **:pointer-events-none" data-userpreset="${i}">`;
+
+		html += preset.badges
+			.map((src) => {
+				if (src) return `<img class="h-5" src="${src}" />`;
+			})
+			.join("\n");
+
+		html += `<span class="font-bold drop-shadow-[0_0_1px_rgba(0,0,0,0.8)]" style="color: ${preset.username.color}">${preset.username.text}</span>`;
+
+		html += `<span class="text-xs text-neutral-500 ml-auto hidden group-hover:block pointer-events-auto! px-1 py-px rounded hover:bg-red-400 hover:text-white" id="user-presets-detete-button">✖</span>`;
+		html += `</div>`;
+	}
+
+	document.querySelector("#user-presets-list")!.innerHTML = html;
+}
+
+function openUserPresetsModal() {
+	userPresetsModalEl.style.removeProperty("display");
+
+	renderUserPresets();
+}
+
+function closeUserPresetsModal(presetIndex: number | undefined = undefined) {
+	if (presetIndex != undefined) {
+		const preset = settings.userPresets[presetIndex];
+		console.debug(`user preset ${preset}`);
+
+		settings.badges = preset.badges;
+		settings.username = preset.username;
+	}
+
+	saveSettings();
+
+	userPresetsModalContainerEl.scrollTo(0, 0);
+	userPresetsModalEl.style.display = "none";
+
+	updateElementsFromSettings();
+}
+
 function openBadgeModal(selectorIndex: number) {
 	badgeSelectorModalEl.dataset.selectorIndex = selectorIndex.toString();
 	badgeSelectorModalEl.style.removeProperty("display");
@@ -198,7 +272,7 @@ function closeBadgeModal(badgeSrc: string | false | undefined = undefined) {
 	saveSettings();
 
 	delete badgeSelectorModalEl.dataset.index;
-	badgeSelectorContainerEl.scrollTo(0, 0);
+	badgeSelectorModalContainerEl.scrollTo(0, 0);
 	globalBadgesSearchEl.value = "";
 	searchGlobalBadges("");
 	badgeSelectorModalEl.style.display = "none";
@@ -338,6 +412,11 @@ function upgradeSettings() {
 		settings.version = 2;
 	}
 
+	if (settings.version < 3) {
+		settings.userPresets = defaultSettings.userPresets;
+		settings.version = 3;
+	}
+
 	saveSettings();
 }
 
@@ -362,6 +441,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 	exportButtonEl.addEventListener("click", exportPng);
 	removeBadgeButtonEl.addEventListener("click", () => closeBadgeModal(false));
 
+	renderUserPresets(); // delete me
 	searchGlobalBadges("");
 
 	setInterval(centerPreview, 100);
@@ -369,15 +449,44 @@ window.addEventListener("DOMContentLoaded", async () => {
 	await fetchGlobalBadges();
 
 	badgeSelectorEls.forEach((badgeSelectorEl, i) => badgeSelectorEl.addEventListener("click", () => openBadgeModal(i)));
+	badgeSelectorModalEl.addEventListener("click", (e) => {
+		const el = e.target as HTMLElement;
+		if (el) {
+			if (el.nodeName == "IMG") {
+				closeBadgeModal((el as HTMLImageElement).src);
+			}
+		}
+	});
 	badgeSelectorModalEl.addEventListener("mousedown", (e) => {
 		const el = e.target as HTMLElement;
 		if (el) {
 			if (el == badgeSelectorModalEl) {
 				closeBadgeModal();
-			} else if (el.nodeName == "IMG") {
-				closeBadgeModal((el as HTMLImageElement).src);
 			}
 		}
+	});
+
+	userPresetsButtonEl.addEventListener("click", openUserPresetsModal);
+	userPresetsModalEl.addEventListener("click", (e) => {
+		const el = e.target as HTMLElement;
+		if (el) {
+			if (el == userPresetsModalEl) {
+				closeUserPresetsModal();
+			} else if (el.dataset.userpreset) {
+				closeUserPresetsModal(parseInt(el.dataset.userpreset));
+			} else if (el.id == "user-presets-detete-button") {
+				settings.userPresets.splice(parseInt(el.parentElement!.dataset.userpreset as string), 1)
+				saveSettings();
+				renderUserPresets();
+			}
+		}
+	});
+	userPresetsAddButtonEl.addEventListener("click", () => {
+		settings.userPresets.push({
+			badges: settings.badges,
+			username: settings.username,
+		});
+		renderUserPresets();
 	});
 
 	document.addEventListener("mouseover", (e) => {
@@ -385,7 +494,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 			const el = e.target as HTMLElement;
 
 			badgeTooltipEl.style.display = "block";
-			badgeTooltipEl.style.top = `${el.offsetTop - badgeSelectorContainerEl.scrollTop - el.clientHeight / 2 - 2}px`;
+			badgeTooltipEl.style.top = `${el.offsetTop - badgeSelectorModalContainerEl.scrollTop - el.clientHeight / 2 - 2}px`;
 			badgeTooltipEl.style.left = `${el.offsetLeft + el.clientWidth / 2}px`;
 
 			badgeTooltipEl.innerText = el.dataset.badge as string;
@@ -394,7 +503,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 		}
 	});
 
-	badgeSelectorContainerEl.addEventListener("scroll", () => {
+	badgeSelectorModalContainerEl.addEventListener("scroll", () => {
 		badgeTooltipEl.style.display = "none";
 	});
 
@@ -414,13 +523,18 @@ function findAllElements() {
 
 	badgeSelectorEls = Array.from(document.querySelectorAll(".badge-selector"));
 	badgeSelectorModalEl = document.querySelector("#badge-selector-modal") as HTMLElement;
-	badgeSelectorContainerEl = document.querySelector("#badge-selector-container") as HTMLElement;
+	badgeSelectorModalContainerEl = document.querySelector("#badge-selector-modal-container") as HTMLElement;
 	badgeTooltipEl = document.querySelector("#badge-tooltip") as HTMLElement;
 	globalBadgesSearchEl = document.querySelector("#global-badges-search") as HTMLInputElement;
 	removeBadgeButtonEl = document.querySelector("#remove-badge-button") as HTMLElement;
 
 	usernameColorEl = document.querySelector("#username-color") as HTMLInputElement;
 	usernameTextEl = document.querySelector("#username-text") as HTMLInputElement;
+
+	userPresetsButtonEl = document.querySelector("#user-presets-button") as HTMLElement;
+	userPresetsModalEl = document.querySelector("#user-presets-modal") as HTMLElement;
+	userPresetsModalContainerEl = document.querySelector("#user-presets-modal-container") as HTMLElement;
+	userPresetsAddButtonEl = document.querySelector("#user-presets-new-button") as HTMLElement;
 
 	messageColorEl = document.querySelector("#message-color") as HTMLInputElement;
 	messageTextEl = document.querySelector("#message-text") as HTMLInputElement;
