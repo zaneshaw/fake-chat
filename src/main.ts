@@ -200,6 +200,7 @@ function closeBadgeModal(badgeSrc: string | false | undefined = undefined) {
 	delete badgeSelectorModalEl.dataset.index;
 	badgeSelectorContainerEl.scrollTo(0, 0);
 	globalBadgesSearchEl.value = "";
+	searchGlobalBadges("");
 	badgeSelectorModalEl.style.display = "none";
 
 	console.debug(settings.badges);
