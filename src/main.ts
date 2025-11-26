@@ -31,6 +31,13 @@ let backgroundColorEl: HTMLInputElement;
 let backgroundSliderEl: HTMLInputElement;
 let backgroundOpacityValueEl: HTMLElement;
 
+let emotesChannelTextEl: HTMLInputElement;
+let emotesTwitchCheckboxEl: HTMLInputElement;
+let emotesFfvCheckboxEl: HTMLInputElement;
+let emotesBttvCheckboxEl: HTMLInputElement;
+let emotesSeventvCheckboxEl: HTMLInputElement;
+let emotesSaveButtonEl: HTMLInputElement;
+
 let wrappingCheckboxEl: HTMLInputElement;
 
 let previewBackgroundCheckboxEl: HTMLInputElement;
@@ -47,6 +54,12 @@ let previewMessageAuthorEl: HTMLElement;
 let previewMessageBodyEl: HTMLElement;
 
 let exportButtonEl: HTMLButtonElement;
+
+interface Emote {
+	token: string;
+	id: string;
+	type: "twitch" | "ffz" | "bttv" | "seventv";
+}
 
 interface UserPreset {
 	badges: string[];
@@ -81,6 +94,13 @@ interface Settings {
 		color: string;
 		opacity: number;
 	};
+	emotes: {
+		channel: string;
+		twitch: boolean;
+		ffz: boolean;
+		bttv: boolean;
+		seventv: boolean;
+	};
 	wrap: boolean;
 	upscale: boolean;
 	font: string;
@@ -88,7 +108,7 @@ interface Settings {
 }
 
 const defaultSettings: Settings = {
-	version: 3,
+	version: 4,
 	badges: ["https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/3", "https://static-cdn.jtvnw.net/badges/v1/3158e758-3cb4-43c5-94b3-7639810451c5/3", "", ""],
 	username: {
 		color: "#FFFFFF",
@@ -106,6 +126,13 @@ const defaultSettings: Settings = {
 		color: "#FFFFFF",
 		opacity: 0,
 	},
+	emotes: {
+		channel: "",
+		twitch: true,
+		ffz: false,
+		bttv: false,
+		seventv: false,
+	},
 	wrap: false,
 	upscale: true,
 	font: "Inter",
@@ -119,7 +146,7 @@ const defaultSettings: Settings = {
 			],
 			username: {
 				color: "#5e8b69",
-				text: "Liam",
+				text: "liam",
 			},
 		},
 	],
@@ -128,6 +155,7 @@ const defaultSettings: Settings = {
 let settings: Settings;
 let exporting = false;
 let globalBadgeFetchCooldown = 3 * 60 * 60 * 1000;
+let emotes: Emote[] = [];
 
 async function exportPng() {
 	if (exporting) return;
@@ -340,7 +368,16 @@ function renderPreview() {
 	previewMessageAuthorEl.innerText = settings.username.text;
 
 	previewMessageBodyEl.style.color = settings.message.color;
-	previewMessageBodyEl.innerText = settings.message.text;
+
+	const tokens = settings.message.text.trim().split(" ");
+	for (let i = 0; i < tokens.length; i++) {
+		const emoteToken = emotes.find((emote) => emote.token == tokens[i]);
+		console.log(emotes.length);
+		if (emoteToken) {
+			tokens[i] = `<img src="https://static-cdn.jtvnw.net/emoticons/v2/${emoteToken.id}/default/dark/3.0" style="width: 24px; margin-bottom: -3px;" />`;
+		}
+	}
+	previewMessageBodyEl.innerHTML = tokens.join(" ");
 
 	previewMessageEl.style.fontFamily = settings.font;
 
@@ -367,6 +404,12 @@ function updateElementsFromSettings() {
 
 	backgroundColorEl.value = settings.background.color;
 	backgroundSliderEl.value = settings.background.opacity.toString();
+
+	emotesChannelTextEl.value = settings.emotes.channel;
+	emotesTwitchCheckboxEl.checked = settings.emotes.twitch;
+	emotesFfvCheckboxEl.checked = settings.emotes.ffz;
+	emotesBttvCheckboxEl.checked = settings.emotes.bttv;
+	emotesSeventvCheckboxEl.checked = settings.emotes.seventv;
 
 	wrappingCheckboxEl.checked = settings.wrap;
 	upscaleCheckboxEl.checked = settings.upscale;
@@ -417,7 +460,72 @@ function upgradeSettings() {
 		settings.version = 3;
 	}
 
+	if (settings.version < 4) {
+		settings.emotes = defaultSettings.emotes;
+		settings.version = 4;
+	}
+
 	saveSettings();
+}
+
+function updateEmoteSettingsState() {
+	const emotesSettings = {
+		channel: emotesChannelTextEl.value.toLowerCase().trim(),
+		twitch: emotesTwitchCheckboxEl.checked,
+		ffz: emotesFfvCheckboxEl.checked,
+		bttv: emotesBttvCheckboxEl.checked,
+		seventv: emotesSeventvCheckboxEl.checked,
+	};
+
+	emotesSaveButtonEl.disabled = JSON.stringify(settings.emotes) == JSON.stringify(emotesSettings);
+}
+
+async function fetchEmotes(save: boolean = false) {
+	if (save) {
+		settings.emotes = {
+			channel: emotesChannelTextEl.value.toLowerCase().trim(),
+			twitch: emotesTwitchCheckboxEl.checked,
+			ffz: emotesFfvCheckboxEl.checked,
+			bttv: emotesBttvCheckboxEl.checked,
+			seventv: emotesSeventvCheckboxEl.checked,
+		};
+		saveSettings();
+		updateEmoteSettingsState();
+	}
+
+	emotes = [];
+
+	if (settings.emotes.twitch) {
+		const twitchEmotes = await fetchGql(
+			{
+				channelLogin: "liam",
+			},
+			`query ($channelLogin: String!) {
+				user(login: $channelLogin) {
+					subscriptionProducts {
+						emotes {
+							id token assetType
+						}
+					}
+				}
+			}`,
+		);
+
+		for (const emote of [
+			...twitchEmotes.data.user.subscriptionProducts[0].emotes,
+			...twitchEmotes.data.user.subscriptionProducts[1].emotes,
+			...twitchEmotes.data.user.subscriptionProducts[2].emotes,
+		]) {
+			emotes.push({
+				token: emote.token,
+				id: emote.id,
+				type: "twitch",
+			});
+		}
+	}
+
+	console.log(emotes);
+	renderPreview();
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -433,13 +541,19 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 	upgradeSettings();
 
+	await fetchEmotes();
 	updateElementsFromSettings();
+	updateEmoteSettingsState();
 
-	settingsEl.addEventListener("input", updateSettingsFromElements);
+	settingsEl.addEventListener("input", () => {
+		updateEmoteSettingsState();
+		updateSettingsFromElements();
+	});
 	previewBackgroundCheckboxEl.addEventListener("input", updateSettingsFromElements);
 	upscaleCheckboxEl.addEventListener("input", updateSettingsFromElements);
 	exportButtonEl.addEventListener("click", exportPng);
 	removeBadgeButtonEl.addEventListener("click", () => closeBadgeModal(false));
+	emotesSaveButtonEl.addEventListener("click", () => fetchEmotes(true));
 
 	renderUserPresets(); // delete me
 	searchGlobalBadges("");
@@ -475,7 +589,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 			} else if (el.dataset.userpreset) {
 				closeUserPresetsModal(parseInt(el.dataset.userpreset));
 			} else if (el.id == "user-presets-detete-button") {
-				settings.userPresets.splice(parseInt(el.parentElement!.dataset.userpreset as string), 1)
+				settings.userPresets.splice(parseInt(el.parentElement!.dataset.userpreset as string), 1);
 				saveSettings();
 				renderUserPresets();
 			}
@@ -512,6 +626,24 @@ window.addEventListener("DOMContentLoaded", async () => {
 	});
 });
 
+async function fetchGql(variables: any, query: string) {
+	// https://github.com/mauricew/twitch-graphql-api
+	// https://raw.githubusercontent.com/LeCodingWolfie/twre-graphql/refs/heads/main/documentation/graphql.json
+	const res = await fetch("https://gql.twitch.tv/gql", {
+		headers: {
+			"Client-Id": "kimne78kx3ncx6brgo4mv6wki5h1ko",
+		},
+		method: "POST",
+		body: JSON.stringify({
+			operationName: "",
+			variables,
+			query,
+		}),
+	});
+
+	return await res.json();
+}
+
 function floatToHex(float: number) {
 	return Math.floor(float * 255)
 		.toString(16)
@@ -546,6 +678,13 @@ function findAllElements() {
 	backgroundColorEl = document.querySelector("#background-color") as HTMLInputElement;
 	backgroundSliderEl = document.querySelector("#background-slider") as HTMLInputElement;
 	backgroundOpacityValueEl = document.querySelector("#background-opacity") as HTMLElement;
+
+	emotesChannelTextEl = document.querySelector("#emote-channel-text") as HTMLInputElement;
+	emotesTwitchCheckboxEl = document.querySelector("#emote-twitch-checkbox") as HTMLInputElement;
+	emotesFfvCheckboxEl = document.querySelector("#emote-ffz-checkbox") as HTMLInputElement;
+	emotesBttvCheckboxEl = document.querySelector("#emote-bttv-checkbox") as HTMLInputElement;
+	emotesSeventvCheckboxEl = document.querySelector("#emote-seventv-checkbox") as HTMLInputElement;
+	emotesSaveButtonEl = document.querySelector("#emote-save-button") as HTMLInputElement;
 
 	wrappingCheckboxEl = document.querySelector("#wrapping-checkbox") as HTMLInputElement;
 

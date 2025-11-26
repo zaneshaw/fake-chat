@@ -69,8 +69,7 @@ input[type="color"]::-webkit-color-swatch {
 	border: none;
 }
 
-button,
-input {
+button {
 	width: min-content;
 }
 

@@ -10,7 +10,7 @@
 
 	<body class="m-3">
 		<main class="flex gap-12">
-			<div class="flex grow basis-0 flex-col">
+			<div class="flex grow basis-4/6 flex-col">
 				<h2 class="mb-1">settings</h2>
 				<div class="flex flex-col gap-1" id="settings">
 					<div class="flex flex-col">
@@ -62,6 +62,30 @@
 							<span class="text-xs">opacity: <span id="background-opacity">0.0</span></span>
 						</div>
 					</div>
+					<div class="flex items-center gap-1">
+						<span>emotes</span>
+						<input class="w-full" id="emote-channel-text" type="text" placeholder="channel" autocomplete="off" />
+						<label class="flex w-max items-center text-xs">
+							<input type="checkbox" id="emote-twitch-checkbox" />
+							<span class="mt-1">twitch</span>
+						</label>
+						<label class="flex w-max items-center text-xs">
+							<input type="checkbox" id="emote-ffz-checkbox" disabled />
+							<span class="mt-1">ffz</span>
+						</label>
+						<label class="flex w-max items-center text-xs">
+							<input type="checkbox" id="emote-bttv-checkbox" disabled />
+							<span class="mt-1">bttv</span>
+						</label>
+						<label class="flex w-max items-center text-xs">
+							<input type="checkbox" id="emote-seventv-checkbox" disabled />
+							<span class="mt-1">7tv</span>
+						</label>
+						<!-- <img class="h-5 cursor-pointer rounded p-0.5 hover:bg-neutral-300" src="/src/assets/save.svg" id="emote-save-button" /> -->
+						<button class="flex cursor-pointer rounded border-0 p-0.5 hover:bg-neutral-300 disabled:cursor-default disabled:bg-transparent disabled:opacity-20" id="emote-save-button">
+							<img class="h-5" src="/src/assets/save.svg" />
+						</button>
+					</div>
 					<div class="flex justify-between">
 						<label class="flex items-center gap-1">
 							<span>wrap text</span>
@@ -81,13 +105,13 @@
 					</div>
 				</div>
 			</div>
-			<div class="flex grow basis-0 flex-col">
+			<div class="flex grow basis-3/6 flex-col">
 				<div class="mb-1 flex items-center justify-between">
 					<h2>preview</h2>
 					<div class="flex items-center gap-1">
 						<label class="flex items-center text-xs">
-							preview background
 							<input type="checkbox" id="preview-background-checkbox" />
+							<span>preview background</span>
 						</label>
 					</div>
 				</div>
@@ -109,17 +133,17 @@
 		</main>
 		<div class="float-right mt-3 flex items-center gap-3">
 			<label class="flex items-center text-xs">
-				10x upscale
 				<input type="checkbox" id="upscale-checkbox" checked />
+				<span>10x upscale</span>
 			</label>
 			<button class="cursor-pointer px-3 py-1.5 text-sm" id="export-button">export</button>
 		</div>
 		<a class="absolute bottom-1 left-3 text-xs text-neutral-400 no-underline" href="https://github.com/zaneshaw/fake-chat" target="_blank">made by squidee</a>
 		<div class="absolute top-0 left-0 flex size-full items-center justify-center bg-black/50" id="user-presets-modal" style="display: none">
 			<div class="flex size-full h-4/5 w-2/5 flex-col gap-2 overflow-y-auto rounded bg-neutral-100 p-5" id="user-presets-modal-container">
-				<div class="flex justify-between items-center">
+				<div class="flex items-center justify-between">
 					<h2>presets</h2>
-					<span class="cursor-pointer underline text-xs" id="user-presets-new-button">new preset</span>
+					<span class="cursor-pointer text-xs underline" id="user-presets-new-button">new preset</span>
 				</div>
 				<div class="flex flex-col" id="user-presets-list">
 					<span data-userpreset="0">0</span>
@@ -134,11 +158,11 @@
 				id="badge-selector-modal-container"
 			>
 				<div class="pointer-events-none absolute top-0 left-0 z-10 hidden translate-[-50%] rounded bg-neutral-50 px-2 py-1 text-sm drop-shadow" id="badge-tooltip"></div>
-				<div class="flex justify-between items-center">
+				<div class="flex items-center justify-between">
 					<h2>badges</h2>
-					<span class="cursor-pointer underline text-xs" id="remove-badge-button">remove badge</span>
+					<span class="cursor-pointer text-xs underline" id="remove-badge-button">remove badge</span>
 				</div>
-				<input class="m-0 box-border min-w-full rounded border-none px-2 py-1 outline outline-black" placeholder="search global badges" autocomplete="off" id="global-badges-search" />
+				<input class="m-0 box-border min-w-full px-2 py-3" id="global-badges-search" type="text" placeholder="search global badges" autocomplete="off" />
 				<div class="flex flex-col gap-5" id="global-badges-container">
 					<div>
 						<h3>common global badges</h3>
