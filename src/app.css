@@ -4,12 +4,12 @@
 
 @font-face {
 	font-family: Inter;
-	src: url("./src/assets/inter.woff2");
+	src: url("/inter.woff2");
 }
 
 @font-face {
 	font-family: MADE;
-	src: url("./src/assets/made extrabold.otf");
+	src: url("/made extrabold.otf");
 }
 
 :root {
@@ -100,7 +100,7 @@ input[type="range"] {
 }
 
 .transparent-image {
-	background-image: url("/src/assets/transparent.png");
+	background-image: url("/transparent.png");
 	background-position: center;
 	background-size: 22px;
 	image-rendering: pixelated;

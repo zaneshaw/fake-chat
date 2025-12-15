@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import {main} from "./stuff";
+	import { main } from "./stuff";
 
 	onMount(() => {
 		main();
@@ -31,7 +31,7 @@
 							</div>
 						</div>
 					</div>
-					<img class="mt-auto h-5 cursor-pointer rounded p-0.5 hover:bg-neutral-300" src="/src/assets/preset.svg" alt="" id="user-presets-button" />
+					<img class="mt-auto h-5 cursor-pointer rounded p-0.5 hover:bg-neutral-300" src="/preset.svg" alt="" id="user-presets-button" />
 				</div>
 			</div>
 			<div class="flex flex-col">
@@ -79,9 +79,9 @@
 					<input type="checkbox" id="emote-seventv-checkbox" disabled />
 					<span class="mt-1">7tv</span>
 				</label>
-				<!-- <img class="h-5 cursor-pointer rounded p-0.5 hover:bg-neutral-300" src="/src/assets/save.svg" id="emote-save-button" /> -->
+				<!-- <img class="h-5 cursor-pointer rounded p-0.5 hover:bg-neutral-300" src="/save.svg" id="emote-save-button" /> -->
 				<button class="flex cursor-pointer rounded border-0 p-0.5 hover:bg-neutral-300 disabled:cursor-default disabled:bg-transparent disabled:opacity-20" id="emote-save-button">
-					<img class="h-5" src="/src/assets/save.svg" alt="" />
+					<img class="h-5" src="/save.svg" alt="" />
 				</button>
 			</div>
 			<div class="flex justify-between">
