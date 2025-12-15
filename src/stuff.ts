@@ -2,6 +2,8 @@ import { snapdom } from "@zumer/snapdom";
 import { downloadDir } from "@tauri-apps/api/path";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
+import { writeImage } from "@tauri-apps/plugin-clipboard-manager";
+import { Image } from "@tauri-apps/api/image";
 
 let settingsEl: HTMLElement;
 
@@ -184,8 +186,10 @@ async function exportPng() {
 			previewMessageEl.style.backgroundColor = "initial";
 
 			const bytes = new Uint8Array(await result.arrayBuffer());
+			const image = await Image.fromBytes(bytes);
 
 			await writeFile(path, bytes);
+			await writeImage(image);
 		}
 	}
 
