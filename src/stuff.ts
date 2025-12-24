@@ -171,7 +171,7 @@ async function exportPng() {
 
 	if (previewMessageEl) {
 		const path = await save({
-			defaultPath: `${await downloadDir()}/fakechat-${Date.now()}.png`,
+			defaultPath: `${await downloadDir()}/chatforge-${Date.now()}.png`,
 			filters: [
 				{
 					name: "PNG",

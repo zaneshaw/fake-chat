@@ -141,7 +141,7 @@
 	</label>
 	<button class="cursor-pointer px-3 py-1.5 text-sm" id="export-button">export</button>
 </div>
-<a class="absolute bottom-1 left-3 text-xs text-neutral-400 no-underline" href="https://github.com/zaneshaw/fake-chat" target="_blank">made by squidee</a>
+<a class="absolute bottom-1 left-3 text-xs text-neutral-400 no-underline" href="https://github.com/zaneshaw/chatforge" target="_blank">made by squidee</a>
 <div class="absolute top-0 left-0 z-10 flex size-full items-center justify-center bg-black/50" id="user-presets-modal" style="display: none">
 	<div class="flex size-full h-4/5 w-2/5 flex-col gap-2 overflow-y-auto rounded bg-neutral-100 p-5" id="user-presets-modal-container">
 		<div class="flex items-center justify-between">

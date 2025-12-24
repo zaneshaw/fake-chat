@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "fake-chat",
+      "name": "chatforge",
       "dependencies": {
         "@tailwindcss/vite": "^4.1.17",
         "@tauri-apps/api": "^2",
